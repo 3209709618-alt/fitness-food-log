@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eef3ed">
+  <meta name="description" content="食衡：记录每一餐，看清热量与营养。个人饮食记录保存在你的浏览器。">
+  <title>食衡 · 好好吃，好好练</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="#journal" aria-label="食衡首页"><img src="favicon.svg" alt="" width="38" height="38"><span>食衡<small>好好吃，好好练。</small></span></a>
+      <nav aria-label="主导航">
+        <button type="button" data-view="journal" aria-current="page"><span data-icon="journal"></span><span>饮食日记</span></button>
+        <button type="button" data-view="foods"><span data-icon="food"></span><span>我的食物</span></button>
+        <button type="button" data-view="settings"><span data-icon="settings"></span><span>目标与设置</span></button>
+      </nav>
+      <div class="sidebar-note"><span data-icon="leaf"></span><p>让每一餐，<br>成为进步的一部分。</p><small>一点记录，一点改变。</small></div>
+      <p class="private-note"><span data-icon="shield"></span>个人记录仅存于本机</p>
+    </aside>
+    <main id="main" tabindex="-1">
+      <div class="mobile-brand"><img src="favicon.svg" width="28" height="28" alt=""><span>食衡</span><span class="local-label">本机记录</span></div>
+      <div id="storage-warning" class="notice error" hidden role="alert"></div>
+      <section id="view-journal" class="view" aria-labelledby="journal-title">
+        <header class="page-header"><div><h1 id="journal-title">每一餐，都算数。</h1><p>吃得明白，练得踏实。</p></div><button class="primary" type="button" data-action="add"><span data-icon="plus"></span>记录一餐</button></header>
+        <div class="date-toolbar"><div class="date-picker"><button class="icon-button" id="prev-day" aria-label="前一天" type="button"><span data-icon="left"></span></button><label><span class="sr-only">记录日期</span><input id="selected-date" type="date" required></label><button class="icon-button" id="next-day" aria-label="后一天" type="button"><span data-icon="right"></span></button></div><button class="text-button" id="today" type="button">回到今天</button></div>
+        <div class="journal-grid">
+          <div class="journal-main">
+            <section class="nutrition" aria-labelledby="nutrition-title">
+              <div class="section-top"><h2 id="nutrition-title">今日营养</h2><button class="text-button" type="button" data-view="settings">调整目标 <span aria-hidden="true">↗</span></button></div>
+              <div class="energy-line"><div><span class="muted">已摄入热量</span><div class="energy-number"><strong id="total-kcal">0</strong><span>kcal</span></div></div><div class="energy-target" id="energy-target">设置目标<br><span>找到适合你的节奏</span></div></div>
+              <progress id="energy-progress" aria-label="热量目标完成进度" max="100" value="0"></progress>
+              <p id="energy-message" class="energy-message">从今天的第一餐开始。</p>
+              <div class="macros" id="macros"></div>
+            </section>
+            <section class="meals-section" aria-labelledby="meals-title"><div class="section-top"><h2 id="meals-title">餐食记录</h2><span class="muted" id="entry-count">0 条记录</span></div><div id="meals"></div></section>
+          </div>
+          <aside class="journal-aside">
+            <section class="week-panel" aria-labelledby="week-title"><div class="section-top"><h2 id="week-title">近 7 天</h2><span class="muted">记录足迹</span></div><div id="week-strip" class="week-strip"></div><p id="week-note">每一天，都是新的起点。</p></section>
+            <section class="quick-panel"><h2>常吃的，记得更快。</h2><p>添加一次，之后只需填写份量。你的食物库会随每一餐慢慢丰富。</p><div id="frequent-foods"></div><button class="text-button" type="button" data-view="foods">查看我的食物 <span aria-hidden="true">↗</span></button></section>
+            <section class="source-note"><span data-icon="book"></span><div><h3>数值有来源，记录更安心。</h3><p>食物保留营养来源与生熟状态。缺失的数值会明确标注。</p><button class="text-button" type="button" data-view="settings" data-scroll="sources">了解数据来源</button></div></section>
+          </aside>
+        </div>
+        <footer class="page-footer"><span>不必每餐完美，持续记录就好。</span><span>食衡 / DAILY FOOD JOURNAL</span></footer>
+      </section>
+
+      <section id="view-foods" class="view" aria-labelledby="foods-title" hidden>
+        <header class="page-header"><div><h1 id="foods-title">熟悉的食物，随手记。</h1><p>常吃的食物保存在这里，下一餐不必重新输入。</p></div><button class="primary" type="button" data-action="create-food"><span data-icon="plus"></span>添加食物</button></header>
+        <label class="search-field"><span data-icon="search"></span><input type="search" id="library-query" placeholder="搜索名称、原文或食物状态" aria-label="搜索我的食物"></label>
+        <p class="notice" id="catalog-note">正在读取本地食物库…</p><div id="library-list"></div>
+      </section>
+
+      <section id="view-settings" class="view" aria-labelledby="settings-title" hidden>
+        <header class="page-header"><div><h1 id="settings-title">适合你，才是好目标。</h1><p>先估算，再调整。身体资料和记录都留在你的设备上。</p></div></header>
+        <div class="settings-grid">
+          <section class="settings-section"><h2>估算每日需求</h2><p class="muted">适用于 18–100 岁一般成年人。以下是估算起点，不是医疗建议。</p>
+            <form id="profile-form"><div class="form-grid">
+              <label>年龄 <span class="unit">岁</span><input name="age" type="number" min="18" max="100" step="1" required inputmode="numeric"></label>
+              <label>公式性别系数<select name="sex"><option value="unspecified">不填写 · 使用区间</option><option value="female">女性系数</option><option value="male">男性系数</option></select></label>
+              <label>身高 <span class="unit">cm</span><input name="height" type="number" min="100" max="250" step="0.1" required inputmode="decimal"></label>
+              <label>体重 <span class="unit">kg</span><input name="weight" type="number" min="30" max="300" step="0.1" required inputmode="decimal"></label>
+              <label>日常活动量<select name="activity"><option value="sedentary">久坐为主</option><option value="light">轻度活动</option><option value="moderate">中等活动</option><option value="active">高活动量</option></select></label>
+              <label>当前目标<select name="goal"><option value="maintain">维持状态</option><option value="cut">减脂</option><option value="bulk">增肌</option></select></label>
+            </div><p class="form-error" id="profile-error" role="alert" hidden></p><button class="secondary" type="submit">计算参考目标 <span data-icon="right"></span></button><p id="estimate-result" class="helper" role="status">计算后可继续修改右侧的目标数值。</p></form>
+          </section>
+          <section class="settings-section targets-section"><h2>我的每日目标</h2><p class="muted">可以使用估算值，也可以直接填写自己的目标。</p><form id="targets-form"><div class="form-grid">
+            <label>热量 <span class="unit">kcal</span><input name="kcal" type="number" min="1" max="20000" step="1" required inputmode="numeric"></label>
+            <label>蛋白质 <span class="unit">g</span><input name="protein" type="number" min="0" max="2000" step="0.1" required inputmode="decimal"></label>
+            <label>碳水化合物 <span class="unit">g</span><input name="carbs" type="number" min="0" max="2000" step="0.1" required inputmode="decimal"></label>
+            <label>脂肪 <span class="unit">g</span><input name="fat" type="number" min="0" max="2000" step="0.1" required inputmode="decimal"></label>
+          </div><p class="form-error" id="targets-error" role="alert" hidden></p><p class="notice" id="settings-conflict" role="alert" hidden>此页面的目标已被其他窗口更新。为避免覆盖，保存已暂停；重新载入将丢弃未保存的修改。<button class="text-button" type="button" data-action="reload-settings">重新载入</button></p><button class="primary" id="save-targets" type="submit">保存目标</button><p class="helper">日记统一对照当前目标；调整目标不会改变已记录的摄入量。</p></form></section>
+        </div>
+        <section class="settings-section backup-section"><div><h2>你的数据，由你保管。</h2><p class="muted">定期下载备份。清理浏览器数据、换设备或换访问地址后，记录不会自动跟随。</p></div><div class="button-row"><button id="export-backup" class="secondary" type="button"><span data-icon="download"></span>导出备份</button><button id="import-backup" class="secondary" type="button"><span data-icon="upload"></span>恢复备份</button><input id="backup-file" type="file" accept="application/json,.json" hidden></div><p id="backup-status" role="status" class="helper"></p></section>
+        <section id="sources" class="settings-section sources"><h2>关于数据与计算</h2><details open><summary>食物数据从哪里来？</summary><p>本地随附的权威营养数据尚待来源及再分发许可核验，目前不会用示例数字填充。你可以按食品标签创建自定义食物；若自行运行 Node 服务并配置 USDA 密钥，也可主动搜索 FoodData Central。GitHub Pages 静态版不提供 USDA 搜索。中文常见食物名称会提供明确的英文搜索词，查询结果请核对品种及生熟状态。</p><p>USDA 结果保留编号、数据类型、发布日期与原文链接。营养值按可食部分每 100 克显示；未提供的数据标为“未知”，不会当成零。自定义食物不会标为机构认证。</p><a href="https://fdc.nal.usda.gov/data-documentation.html" target="_blank" rel="noopener noreferrer">USDA 数据说明 ↗</a> · <a href="https://fdc.nal.usda.gov/api-key-signup.html" target="_blank" rel="noopener noreferrer">申请 API 密钥 ↗</a></details>
+          <details><summary>目标是怎么估算的？</summary><p>Mifflin–St Jeor 公式：10 × 体重(kg) + 6.25 × 身高(cm) − 5 × 年龄，再加男性系数 5 或女性系数 −161。不填系数时给出两者区间并取中点。</p><p>活动系数依次为 1.2、1.375、1.55、1.725。减脂取估算消耗的 90%，维持取 100%，增肌取 110%；这些比例是可调整的产品默认值，不是适合所有人的处方。蛋白质默认 1.6 g/kg，脂肪为目标热量的 30%，剩余热量分配给碳水。</p><p>仅适用于一般成年健身人群，孕期、哺乳期或有特定健康需要时请使用专业建议的手动目标。公式和默认分配都有个体误差。</p><a href="https://pubmed.ncbi.nlm.nih.gov/2305711/" target="_blank" rel="noopener noreferrer">Mifflin 等，1990 ↗</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/28698222/" target="_blank" rel="noopener noreferrer">运动与蛋白质立场声明，2017 ↗</a></details>
+          <details><summary>隐私与保存方式</summary><p>身体资料、目标和日记只存于此浏览器。搜索 USDA 时，仅食物搜索词和固定查询选项发往服务器与 USDA；服务端不接收个人档案和日志。正常网络连接仍会产生 IP 等连接信息。未使用统计或广告服务，备份文件也包含个人资料，请自行妥善保存。</p></details>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="food-dialog" aria-labelledby="dialog-title"><div class="dialog-inner"><header class="dialog-header"><div><h2 id="dialog-title">记录这一餐</h2><p>选好食物，填上份量。</p></div><button class="icon-button" id="close-dialog" type="button" aria-label="关闭"><span data-icon="close"></span></button></header>
+    <div id="food-picker"><div class="tabs" role="tablist" aria-label="食物来源"><button type="button" role="tab" aria-selected="true" aria-controls="pane-local" id="tab-local" data-tab="local">本地食物</button><button type="button" role="tab" aria-selected="false" aria-controls="pane-usda" id="tab-usda" data-tab="usda" tabindex="-1">USDA 搜索</button><button type="button" role="tab" aria-selected="false" aria-controls="pane-custom" id="tab-custom" data-tab="custom" tabindex="-1">自定义</button></div>
+      <section id="pane-local" role="tabpanel" aria-labelledby="tab-local"><label class="search-field"><span data-icon="search"></span><input id="local-query" type="search" placeholder="搜索已保存的食物" aria-label="搜索本地食物"></label><div id="local-results" class="food-results"></div></section>
+      <section id="pane-usda" role="tabpanel" aria-labelledby="tab-usda" hidden><form id="usda-form" class="inline-search"><label class="sr-only" for="usda-query">USDA 食物搜索词</label><input id="usda-query" type="search" placeholder="可输入中文，例如：熟米饭" maxlength="120" required><button class="primary" type="submit">搜索</button></form><div class="chips"><button type="button" data-query="熟米饭">熟米饭</button><button type="button" data-query="熟鸡胸肉">熟鸡胸肉</button><button type="button" data-query="熟鸡蛋">熟鸡蛋</button><button type="button" data-query="豆腐">豆腐</button><button type="button" data-query="燕麦">燕麦</button></div><p class="helper">常见中文食物会转换为英文关键词搜索。仅发送食物搜索词；结果保留原文，需核对生熟状态。</p><div id="usda-results" class="food-results" role="status"><p class="empty-copy">需要服务端配置 USDA 密钥。未配置时，仍可使用本地食物或自定义。</p></div></section>
+      <section id="pane-custom" role="tabpanel" aria-labelledby="tab-custom" hidden><form id="custom-form"><label>食物名称<input name="name" maxlength="200" placeholder="例如：原味酸奶" required></label><div class="form-grid"><label>食物状态<select name="state"><option>即食 / 包装食品</option><option>生重 / 未烹调</option><option>熟重 / 已烹调</option></select></label><label>数值来自哪里？<input name="source" placeholder="例如：包装营养标签" maxlength="200" required></label></div><p class="helper">按可食部分每 100 克填写已知营养值；未知项可留空，至少填写一项。包装若只标注 kJ，请先除以 4.184 换算 kcal。</p><div class="form-grid"><label>热量 <span class="unit">kcal / 100 g</span><input name="kcal" type="number" min="0" max="1000" step="0.01" inputmode="decimal"></label><label>蛋白质 <span class="unit">g / 100 g</span><input name="protein" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label><label>碳水 <span class="unit">g / 100 g</span><input name="carbs" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label><label>脂肪 <span class="unit">g / 100 g</span><input name="fat" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label></div><p class="form-error" id="custom-error" role="alert" hidden></p><button class="secondary" type="submit">保存食物，继续填写份量</button></form></section>
+    </div>
+    <section id="food-selection" hidden><button type="button" id="change-food" class="text-button">← 重新选择食物</button><h3 id="selection-name"></h3><p id="selection-state" class="muted"></p><div id="selection-source" class="source-detail"></div><p id="selection-nutrients" class="helper"></p></section>
+    <form id="entry-form"><div class="entry-fields"><label>餐次<select id="entry-meal" name="meal"><option value="breakfast">早餐</option><option value="lunch">午餐</option><option value="dinner">晚餐</option><option value="snack">加餐</option></select></label><label>日期<input id="entry-date" name="date" type="date" required></label><label>份量 <span class="unit">g</span><input id="entry-grams" name="grams" type="number" min="0.1" max="10000" step="0.1" value="100" required inputmode="decimal"></label></div><p id="portion-preview" class="portion-preview">选好食物后，这里会显示本次摄入。</p><p id="entry-error" class="form-error" role="alert" hidden></p><div class="dialog-actions"><button class="text-button danger" id="delete-entry" type="button" hidden>删除这条记录</button><button class="primary" type="submit" id="save-entry" disabled>记录这一餐</button></div></form>
+  </div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
