@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "status": "pending-source-verification",
+  "note": "官方来源和再分发许可尚未完成联网核验，当前不捆绑未经核实的营养数据。可使用自定义食物，或配置 USDA 密钥后在线搜索。",
+  "foods": []
+}
