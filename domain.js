@@ -3,7 +3,7 @@ export const MEALS = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', s
 export const NUTRIENTS = ['kcal', 'protein', 'carbs', 'fat'];
 export const ACTIVITIES = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725 };
 export const GOALS = { cut: 0.9, maintain: 1, bulk: 1.1 };
-export const EMPTY = () => ({ version: 1, profile: null, targets: null, foods: [], entries: [] });
+export const EMPTY = () => ({ version: 1, profile: null, targets: null, foods: [], entries: [], weightEntries: [] });
 
 export function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -66,9 +66,10 @@ export function summarize(entries) {
 }
 export function validateState(state) {
   if (!state || state.version !== 1 || !Array.isArray(state.foods) || !Array.isArray(state.entries)) fail('不是支持的食衡 V1 备份文件。');
+  if (state.weightEntries !== undefined && !Array.isArray(state.weightEntries)) fail('备份中的体重记录格式无效。');
   if (state.profile !== null) validateProfile(state.profile);
   if (state.targets !== null) validateTargets(state.targets);
-  if (state.foods.length > 10000 || state.entries.length > 100000) fail('备份中的记录数量过多。');
+  if (state.foods.length > 10000 || state.entries.length > 100000 || (state.weightEntries?.length || 0) > 36600) fail('备份中的记录数量过多。');
   const foodIds = new Set(), entryIds = new Set();
   for (const food of state.foods) {
     validateFood(food);
@@ -80,11 +81,16 @@ export function validateState(state) {
     validateFood(e.food);
     entryIds.add(e.id);
   }
+  const weightDates = new Set();
+  for (const entry of state.weightEntries || []) {
+    if (!entry || !validDate(entry.date) || weightDates.has(entry.date) || !numberIn(entry.kg, 30, 300)) fail('备份含无效或重复的体重记录。');
+    weightDates.add(entry.date);
+  }
   return state;
 }
 export function parseBackup(raw) {
   if (typeof raw !== 'string' || raw.length > 10000000) fail('备份文件过大，最大支持 10 MB。');
-  try { return validateState(JSON.parse(raw)); }
+  try { const state = JSON.parse(raw); validateState(state); return { ...state, weightEntries: state.weightEntries || [] }; }
   catch (e) { if (e instanceof SyntaxError) fail('文件不是有效的 JSON，原记录未改变。'); throw e; }
 }
 export function writeState(storage, state) {
