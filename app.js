@@ -100,7 +100,7 @@ function render() {
     const d = new Date(`${date}T12:00:00`); d.setDate(d.getDate() + offset);
     const day = localDate(d), hasFood = entriesOn(day).length > 0, weight = (state.weightEntries || []).find(entry => entry.date === day)?.kg;
     if (weight !== undefined) count++;
-    days.push(`<button type="button" class="week-day${hasFood ? ' has-entry' : ''}" aria-pressed="${day === date}" aria-label="${day}${hasFood ? '，有餐食记录' : ''}${weight !== undefined ? `，体重 ${fmt(weight)} 千克` : ''}${!hasFood && weight === undefined ? '，无记录' : ''}" data-date="${day}"><small>${'日一二三四五六'[d.getDay()]}</small><span>${d.getDate()}</span><small class="week-weight">${weight === undefined ? '—' : fmt(weight)}</small><span class="day-dot"></span></button>`);
+    days.push(`<button type="button" class="week-day${hasFood || weight !== undefined ? ' has-entry' : ''}" aria-pressed="${day === date}" aria-label="${day}${hasFood ? '，有餐食记录' : ''}${weight !== undefined ? `，体重 ${fmt(weight)} 千克` : ''}${!hasFood && weight === undefined ? '，无记录' : ''}" data-date="${day}"><small>${'日一二三四五六'[d.getDay()]}</small><span>${d.getDate()}</span><small class="week-weight">${weight === undefined ? '—' : fmt(weight)}</small><span class="day-dot"></span></button>`);
   }
   $('#week-strip').innerHTML = days.join('');
   $('#week-note').textContent = count ? `近 7 天已记录 ${count} 天体重；选择日期可查看或修改。` : '记录体重后，可在这里查看近 7 天。';
