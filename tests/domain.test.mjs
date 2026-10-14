@@ -47,6 +47,16 @@ test('backup rejects invalid shape before replacing current data', () => {
   assert.equal(storage.value, preserved);
 });
 
+test('daily weights are unique by date, survive backups, and old backups default to no weigh-ins', () => {
+  const state = { ...EMPTY(), weightEntries: [{ date: '2026-10-14', kg: 62.4 }] };
+  assert.deepEqual(parseBackup(JSON.stringify(state)).weightEntries, state.weightEntries);
+  const oldBackup = { version: 1, profile: null, targets: null, foods: [], entries: [] };
+  assert.deepEqual(parseBackup(JSON.stringify(oldBackup)).weightEntries, []);
+  assert.throws(() => parseBackup(JSON.stringify({ ...state, weightEntries: [...state.weightEntries, state.weightEntries[0]] })), /重复/);
+  assert.throws(() => parseBackup(JSON.stringify({ ...state, weightEntries: [{ date: '2026-02-30', kg: 62.4 }] })), /无效/);
+  assert.throws(() => parseBackup(JSON.stringify({ ...state, weightEntries: [{ date: '2026-10-14', kg: 301 }] })), /无效/);
+});
+
 test('USDA search results retain source identifiers and unknown values', () => {
   const result = normalizeUsdaFood({ fdcId: 1234, description: 'Egg, whole, raw', dataType: 'SR Legacy', publicationDate: '2024-04-01', foodNutrients: [
     { nutrientId: 1008, unitName: 'KCAL', value: 143 }, { nutrientId: 1003, unitName: 'G', value: 12.6 }, { nutrientId: 1004, unitName: 'G', value: 9.5 }
