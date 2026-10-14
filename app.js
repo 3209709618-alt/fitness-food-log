@@ -69,9 +69,14 @@ function shiftDay(offset) { const d = new Date(`${date}T12:00:00`); d.setDate(d.
 
 function render() {
   $('#selected-date').value = date;
+  errorAt('#weight-error');
   const today = date === localDate(), entries = entriesOn(), total = summarize(entries);
   $('#nutrition-title').textContent = today ? '今日营养' : '当日营养';
   $('#entry-count').textContent = `${entries.length} 条记录`;
+  const weightEntry = (state.weightEntries || []).find(entry => entry.date === date);
+  $('#weight-status').textContent = weightEntry ? `已记录 ${fmt(weightEntry.kg)} kg` : '这一天还未记录';
+  $('#weight-kg').value = weightEntry?.kg ?? '';
+  $('#delete-weight').hidden = !weightEntry;
   $('#total-kcal').textContent = intakeText(total.kcal, 0);
   const goal = state.targets?.kcal;
   $('#energy-progress').value = goal ? Math.min(100, total.kcal.value / goal * 100) : 0;
@@ -93,12 +98,12 @@ function render() {
   let days = [], count = 0;
   for (let offset = -6; offset <= 0; offset++) {
     const d = new Date(`${date}T12:00:00`); d.setDate(d.getDate() + offset);
-    const day = localDate(d), has = entriesOn(day).length > 0;
-    if (has) count++;
-    days.push(`<button type="button" class="week-day${has ? ' has-entry' : ''}" aria-pressed="${day === date}" aria-label="${day}${has ? '，有记录' : '，无记录'}" data-date="${day}"><small>${'日一二三四五六'[d.getDay()]}</small><span>${d.getDate()}</span><span class="day-dot"></span></button>`);
+    const day = localDate(d), hasFood = entriesOn(day).length > 0, weight = (state.weightEntries || []).find(entry => entry.date === day)?.kg;
+    if (weight !== undefined) count++;
+    days.push(`<button type="button" class="week-day${hasFood ? ' has-entry' : ''}" aria-pressed="${day === date}" aria-label="${day}${hasFood ? '，有餐食记录' : ''}${weight !== undefined ? `，体重 ${fmt(weight)} 千克` : ''}${!hasFood && weight === undefined ? '，无记录' : ''}" data-date="${day}"><small>${'日一二三四五六'[d.getDay()]}</small><span>${d.getDate()}</span><small class="week-weight">${weight === undefined ? '—' : fmt(weight)}</small><span class="day-dot"></span></button>`);
   }
   $('#week-strip').innerHTML = days.join('');
-  $('#week-note').textContent = count ? `截至所选日期，近 7 天记录了 ${count} 天。继续积累。` : '每一天，都是新的起点。';
+  $('#week-note').textContent = count ? `近 7 天已记录 ${count} 天体重；选择日期可查看或修改。` : '记录体重后，可在这里查看近 7 天。';
   const frequency = new Map();
   for (const e of state.entries) frequency.set(e.food.id, (frequency.get(e.food.id) || 0) + 1);
   $('#frequent-foods').innerHTML = allFoods().sort((a,b) => (frequency.get(b.id) || 0) - (frequency.get(a.id) || 0)).slice(0,3).map(f => `<button class="quick-food" type="button" data-use-food="${esc(f.id)}"><span>${esc(f.name)}</span>${icon('plus')}</button>`).join('');
@@ -197,6 +202,19 @@ document.addEventListener('click', event => {
     }
   } catch(e) { toast(e.message); }
 });
+$('#weight-form').addEventListener('submit', e => {
+  e.preventDefault(); errorAt('#weight-error');
+  try {
+    const kg = Number($('#weight-kg').value);
+    if (!Number.isFinite(kg) || kg < 30 || kg > 300) throw new Error('体重需在 30–300 kg 之间。');
+    const weightEntries = [...(state.weightEntries || []).filter(entry => entry.date !== date), { date, kg }].sort((a, b) => a.date.localeCompare(b.date));
+    commit({ ...state, weightEntries }); toast('体重已保存');
+  } catch (err) { errorAt('#weight-error', err.message); }
+});
+$('#delete-weight').addEventListener('click', () => {
+  try { commit({ ...state, weightEntries: (state.weightEntries || []).filter(entry => entry.date !== date) }); toast('体重记录已删除'); }
+  catch (err) { errorAt('#weight-error', err.message); }
+});
 $('#selected-date').addEventListener('change', e => setDate(e.target.value));
 $('#prev-day').addEventListener('click', () => shiftDay(-1));
 $('#next-day').addEventListener('click', () => shiftDay(1));
@@ -284,7 +302,7 @@ $('#backup-file').addEventListener('change', async e => {
   try {
     if (file.size > 10000000) throw new Error('文件超过 10 MB，请选择较小的备份。');
     const next = parseBackup(await file.text());
-    if (!confirm(`备份含 ${next.entries.length} 条餐食记录、${next.foods.length} 项食物。恢复将替换当前全部资料、目标和记录。建议先导出当前备份。确定恢复？`)) { $('#backup-status').textContent = '已取消恢复，当前数据未改变。'; return; }
+    if (!confirm(`备份含 ${next.entries.length} 条餐食记录、${next.weightEntries.length} 天体重、${next.foods.length} 项食物。恢复将替换当前全部资料、目标和记录。建议先导出当前备份。确定恢复？`)) { $('#backup-status').textContent = '已取消恢复，当前数据未改变。'; return; }
     commit(next); fillSettings(); $('#backup-status').textContent = '备份已恢复。'; toast('备份已恢复');
   } catch(err) { $('#backup-status').textContent = `${err.message} 当前数据未改变。`; }
   finally { e.target.value = ''; }
