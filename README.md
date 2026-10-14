@@ -14,7 +14,7 @@ npm run dev
 
 ## 手机访问
 
-GitHub Pages 静态版可通过公网 HTTPS 打开，浏览器本地记录、目标计算、自定义食物和 JSON 备份均可使用。将项目推送到 GitHub 公共仓库后，发布工作流会在每次推送 `main` 时部署允许公开的网页文件；若首次发布未启用 Pages，请在仓库 Settings → Pages 中将 Source 设为 GitHub Actions。GitHub Pages 不能运行 Node 代理，因此静态版不提供 USDA 在线搜索；若要启用该功能，需要另行部署 Node 服务并配置 `USDA_API_KEY`。
+网站已发布到 <https://3209709618-alt.github.io/fitness-food-log/>。GitHub Pages 从 `main` 分支根目录提供静态网页，推送更新后会自动重新发布。浏览器本地记录、目标计算、自定义食物和 JSON 备份均可使用。GitHub Pages 不能运行 Node 代理，因此静态版不提供 USDA 在线搜索；若要启用该功能，需要另行部署 Node 服务并配置 `USDA_API_KEY`。
 
 本机网址与 GitHub Pages 是不同的浏览器存储地址；换设备或换网址时，请先在旧网站的「目标与设置」导出 JSON，再在新网站恢复。即使使用同一手机，清理浏览器数据也可能删除记录。
 
