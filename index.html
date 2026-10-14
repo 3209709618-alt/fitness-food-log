@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#eef3ed">
-  <meta name="description" content="食衡：记录每一餐，看清热量与营养。个人饮食记录保存在你的浏览器。">
+  <meta name="description" content="食衡：记录每一餐与每日体重，看清热量和身体变化。个人记录保存在你的浏览器。">
   <title>食衡 · 好好吃，好好练</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
@@ -38,10 +38,14 @@
               <p id="energy-message" class="energy-message">从今天的第一餐开始。</p>
               <div class="macros" id="macros"></div>
             </section>
+            <section class="weight-section" aria-labelledby="weight-title"><div class="section-top"><h2 id="weight-title">每日体重</h2><span class="muted" id="weight-status">这一天还未记录</span></div>
+              <form id="weight-form"><label for="weight-kg">所选日期的体重 <span class="unit">kg</span></label><div class="weight-controls"><input id="weight-kg" name="kg" type="number" min="30" max="300" step="0.1" inputmode="decimal" placeholder="例如 65.5" required><button class="secondary" type="submit">保存体重</button><button class="text-button danger" id="delete-weight" type="button" hidden>删除记录</button></div><p class="form-error" id="weight-error" role="alert" hidden></p></form>
+              <p class="helper">按上方日期查看或修改；体重变化不会自动改动营养目标。</p>
+            </section>
             <section class="meals-section" aria-labelledby="meals-title"><div class="section-top"><h2 id="meals-title">餐食记录</h2><span class="muted" id="entry-count">0 条记录</span></div><div id="meals"></div></section>
           </div>
           <aside class="journal-aside">
-            <section class="week-panel" aria-labelledby="week-title"><div class="section-top"><h2 id="week-title">近 7 天</h2><span class="muted">记录足迹</span></div><div id="week-strip" class="week-strip"></div><p id="week-note">每一天，都是新的起点。</p></section>
+            <section class="week-panel" aria-labelledby="week-title"><div class="section-top"><h2 id="week-title">近 7 天</h2><span class="muted">体重 kg · 餐食</span></div><div id="week-strip" class="week-strip"></div><p id="week-note">每一天，都是新的起点。</p></section>
             <section class="quick-panel"><h2>常吃的，记得更快。</h2><p>添加一次，之后只需填写份量。你的食物库会随每一餐慢慢丰富。</p><div id="frequent-foods"></div><button class="text-button" type="button" data-view="foods">查看我的食物 <span aria-hidden="true">↗</span></button></section>
             <section class="source-note"><span data-icon="book"></span><div><h3>数值有来源，记录更安心。</h3><p>食物保留营养来源与生熟状态。缺失的数值会明确标注。</p><button class="text-button" type="button" data-view="settings" data-scroll="sources">了解数据来源</button></div></section>
           </aside>
